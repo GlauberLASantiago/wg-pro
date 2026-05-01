@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worship Guitar Pro - Guia Completo</title>
+    <!-- Favicon incluído conforme solicitado -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎸</text></svg>">
+    <style>
+        /* Variáveis de Tema - Dark Mode Premium */
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-panel-hover: #334155;
+            --primary: #fbbf24; /* Dourado */
+            --primary-hover: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --fretboard-bg: #291c14;
+            --string-color: #cbd5e1;
+            --note-base: #3b82f6;
+            --note-root: #ef4444;
+            --note-third: #10b981;
+            --note-fifth: #8b5cf6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Barra de Navegação Lateral --- */
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-panel);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #334155;
+            z-index: 10;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 30px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 15px 25px;
+            text-align: left;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-btn:hover { background-color: var(--bg-panel-hover); color: var(--text-main); }
+        .nav-btn.active { 
+            background-color: var(--bg-panel-hover); 
+            color: var(--primary); 
+            border-left-color: var(--primary); 
+            font-weight: bold;
+        }
+
+        /* --- Área de Conteúdo Principal --- */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen { display: none; animation: fadeIn 0.3s ease-in-out; max-width: 1200px; margin: 0 auto; width: 100%; flex: 1; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1, h2, h3 { color: var(--primary); margin-bottom: 15px; }
+        h1 { font-size: 2.2rem; border-bottom: 2px solid var(--bg-panel); padding-bottom: 10px; }
+        p { margin-bottom: 15px; line-height: 1.6; color: #cbd5e1; }
+
+        .card {
+            background-color: var(--bg-panel);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #334155;
+        }
+
+        ul { padding-left: 20px; margin-bottom: 15px; }
+        li { margin-bottom: 8px; line-height: 1.5; color: #cbd5e1; }
+        strong { color: var(--text-main); }
+
+        /* --- Controles --- */
+        .controls-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+
+        .control-item { display: flex; flex-direction: column; gap: 5px; }
+        .control-item label { font-size: 0.9rem; color: var(--text-muted); font-weight: bold; }
+
+        select, button {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background-color: var(--bg-dark);
+            color: white;
+            cursor: pointer;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        select:hover { border-color: var(--primary); }
+        
+        button.btn-primary { background-color: var(--primary); color: #000; border-color: var(--primary); font-weight: 600; }
+        button.btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        button.btn-secondary { background-color: transparent; color: var(--primary); border: 1px solid var(--primary); }
+        button.btn-secondary:hover { background-color: rgba(251, 191, 36, 0.1); }
+
+        /* --- Bloco de Acordes (Progressões) --- */
+        .chord-sequence {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .chord-block {
+            background-color: var(--bg-dark);
+            border: 2px solid #475569;
+            border-radius: 12px;
+            padding: 20px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+
+        .chord-block:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .chord-block.active { 
+            background-color: rgba(251, 191, 36, 0.1); 
+            border-color: var(--primary); 
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        }
+
+        .chord-numeral { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px; }
+        .chord-name { font-size: 1.8rem; font-weight: bold; color: var(--text-main); }
+        .chord-block.active .chord-name { color: var(--primary); }
+
+        /* --- Legenda --- */
+        .legend { display: flex; gap: 20px; margin-bottom: 15px; font-size: 0.9rem; flex-wrap: wrap;}
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot-sample { width: 14px; height: 14px; border-radius: 50%; }
+        .bg-root { background-color: var(--note-root); }
+        .bg-third { background-color: var(--note-third); }
+        .bg-fifth { background-color: var(--note-fifth); }
+        .bg-scale { background-color: var(--note-base); opacity: 0.4; }
+
+        /* --- Braço da Guitarra (Fretboard) --- */
+        .fretboard-wrapper { overflow-x: auto; padding-bottom: 20px; margin-top: 10px; }
+        .fret-markers { display: flex; height: 25px; margin-left: 40px; }
+        .fret-marker { width: 65px; text-align: center; font-size: 0.85rem; color: var(--text-muted); flex-shrink: 0; }
+        
+        .fretboard {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--fretboard-bg);
+            border-radius: 8px;
+            width: max-content;
+            border: 2px solid #000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .string { display: flex; height: 40px; align-items: center; position: relative; }
+        .string::before {
+            content: ''; position: absolute; left: 0; right: 0;
+            height: 2px; background-color: var(--string-color); z-index: 1;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .string:nth-child(4)::before { height: 3px; }
+        .string:nth-child(5)::before { height: 4px; }
+        .string:nth-child(6)::before { height: 5px; }
+
+        .fret {
+            width: 65px; height: 100%;
+            border-right: 2px solid #b8a08c; /* Cor do traste (fret wire) */
+            display: flex; justify-content: center; align-items: center;
+            position: relative; z-index: 2; cursor: pointer;
+        }
+        .fret:first-child { width: 40px; border-right: 8px solid #cbd5e1; background: #111; } /* Pestana */
+
+        /* Marcadores no braço (bolinhas brancas) */
+        .fret.inlay::after {
+            content: ''; position: absolute; width: 12px; height: 12px;
+            background-color: rgba(255,255,255,0.2); border-radius: 50%; z-index: -1;
+        }
+        .string:nth-child(3) .fret:nth-child(4)::after, .string:nth-child(3) .fret:nth-child(6)::after, 
+        .string:nth-child(3) .fret:nth-child(8)::after, .string:nth-child(3) .fret:nth-child(10)::after {
+            content: ''; position: absolute; width: 12px; height: 12px;
+            background-color: rgba(255,255,255,0.2); border-radius: 50%; z-index: -1;
+        }
+
+        .note-dot {
+            width: 26px; height: 26px; border-radius: 50%;
+            background-color: var(--note-base); color: #fff;
+            font-size: 0.75rem; font-weight: bold;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; /* Invisível por padrão */
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .fret:hover .note-dot { opacity: 0.3; } /* Hover para ver notas fora da escala */
+        
+        /* Classes aplicadas via JS */
+        .note-dot.in-scale { opacity: 0.3; background-color: var(--note-base); }
+        .note-dot.chord-tone { opacity: 1; transform: scale(1.1); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .note-dot.root { background-color: var(--note-root); opacity: 1; transform: scale(1.15); z-index: 6;}
+        .note-dot.third { background-color: var(--note-third); opacity: 1; transform: scale(1.1); }
+        .note-dot.fifth { background-color: var(--note-fifth); opacity: 1; transform: scale(1.1); }
+
+        /* Overlay Inicial (Para ativar áudio) */
+        #audio-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.95); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        #audio-overlay button { font-size: 1.5rem; padding: 20px 40px; border-radius: 50px; }
+
+        /* Footer / Créditos */
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        footer a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+        footer a:hover { color: var(--text-main); text-decoration: underline; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Overlay de Inicialização do Áudio -->
+    <div id="audio-overlay">
+        <h1 style="border:none; margin-bottom: 30px;">Worship Guitar Pro</h1>
+        <p style="text-align: center; max-width: 600px; margin-bottom: 40px; font-size: 1.2rem;">
+            Este aplicativo utiliza som sintetizado para o ajudar nos estudos.<br>
+            Clique no botão abaixo para ativar o motor de áudio.
+        </p>
+        <button class="btn-primary" onclick="startApp()">Ativar Áudio e Começar</button>
+    </div>
+
+    <!-- Barra Lateral de Navegação -->
+    <nav class="sidebar">
+        <div class="logo">🎸 WG Pro</div>
+        <button class="nav-btn active" onclick="switchTab('screen-fundamentos', this)">1. Fundamentos & Timbre</button>
+        <button class="nav-btn" onclick="switchTab('screen-escalas', this)">2. Dicionário de Escalas</button>
+        <button class="nav-btn" onclick="switchTab('screen-progressoes', this)">3. Progressões & Acordes</button>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+
+        <!-- TELA 1: FUNDAMENTOS -->
+        <section id="screen-fundamentos" class="screen active">
+            <h1>Fundamentos do Worship Guitar</h1>
+            
+            <div class="card">
+                <h2>O Papel da Guitarra</h2>
+                <p>Na música cristã contemporânea (Gospel/Worship), a guitarra elétrica raramente atua como um instrumento de exibição rítmica pura. O seu papel assemelha-se mais ao de um sintetizador ou de uma voz de apoio. O objetivo é criar atmosferas, texturas e melodias que conduzam a dinâmica da música.</p>
+            </div>
+
+            <div class="card">
+                <h2>A Regra de Ouro: "Chord Tones" (Notas do Acorde)</h2>
+                <p>O segredo para um solo ou arranjo emotivo não é tocar a escala muito rápido, mas sim <strong>"repousar" nas notas certas no momento certo</strong>.</p>
+                <ul>
+                    <li>Quando o tecladista ou a banda muda para um acorde de <strong>Dó Maior (C)</strong>, as notas mais fortes que pode tocar são <strong>Dó (Tônica), Mi (3ª) e Sol (5ª)</strong>.</li>
+                    <li>A Tela 3 ("Progressões") foi criada exatamente para treinar isto. Você vai aprender a ver a Escala Maior no braço, mas focar-se visualmente no "esqueleto" do acorde que está soando.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Construção do Timbre (Tone)</h2>
+                <ul>
+                    <li><strong>Compressor:</strong> Essencial para manter o volume consistente, especialmente ao fazer dedilhados (fingerpicking) ou <em>ambient swells</em>.</li>
+                    <li><strong>Overdrive:</strong> Utilize pedais de ganho baixo/médio (estilo Klon, Bluesbreaker ou Tube Screamer). Empilhe dois overdrives leves para refrões épicos em vez de usar uma distorção pesada.</li>
+                    <li><strong>Delay (Dotted 8th):</strong> A assinatura sonora do estilo (influência de The Edge do U2). Defina o tempo do delay para colcheias pontuadas.</li>
+                    <li><strong>Reverb:</strong> Longo e exuberante (Hall, Cloud ou Shimmer). É o que cria a sensação de "espaço" e "atmosfera".</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- TELA 2: DICIONÁRIO DE ESCALAS -->
+        <section id="screen-escalas" class="screen">
+            <h1>Dicionário de Escalas</h1>
+            <p>Selecione uma tonalidade e um tipo de escala. Clique no braço para ouvir a nota. Esta tela serve para memorizar os "shapes" (padrões).</p>
+
+            <div class="card">
+                <div class="controls-group">
+                    <div class="control-item">
+                        <label>Tonalidade (Tom)</label>
+                        <select id="dict-key" onchange="renderDictFretboard()">
+                            <option value="C">C (Dó)</option>
+                            <option value="C#">C# / Db</option>
+                            <option value="D" selected>D (Ré)</option>
+                            <option value="D#">D# / Eb</option>
+                            <option value="E">E (Mi)</option>
+                            <option value="F">F (Fá)</option>
+                            <option value="F#">F# / Gb</option>
+                            <option value="G">G (Sol)</option>
+                            <option value="G#">G# / Ab</option>
+                            <option value="A">A (Lá)</option>
+                            <option value="A#">A# / Bb</option>
+                            <option value="B">B (Si)</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label>Escala</label>
+                        <select id="dict-scale" onchange="renderDictFretboard()">
+                            <option value="majorPenta">Pentatônica Maior</option>
+                            <option value="minorPenta">Pentatônica Menor</option>
+                            <option value="major" selected>Escala Maior (Jônio)</option>
+                            <option value="minor">Escala Menor Natural (Eólio)</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label>Visualização</label>
+                        <button id="btn-toggle-fretboard" class="btn-secondary" onclick="toggleDictView()">Mostrar Braço Completo</button>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item"><div class="dot-sample bg-root"></div> Tônica (Fundamental)</div>
+                    <div class="legend-item"><div class="dot-sample bg-scale" style="opacity:1;"></div> Notas da Escala</div>
+                </div>
+
+                <div class="fretboard-wrapper">
+                    <div class="fret-markers" id="dict-markers"></div>
+                    <div class="fretboard" id="dict-fretboard"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TELA 3: PROGRESSÕES E ACORDES -->
+        <section id="screen-progressoes" class="screen">
+            <h1>Estudo de Progressões (Chord Tones)</h1>
+            <p>Selecione a tonalidade da música e a progressão. <strong>Clique em um dos acordes abaixo</strong> para ouvir a banda tocando e ver no braço da guitarra onde estão as notas alvo (Arpejo) dentro da Escala Maior.</p>
+
+            <div class="card">
+                <div class="controls-group">
+                    <div class="control-item">
+                        <label>Tom Global da Música</label>
+                        <select id="prog-key" onchange="loadProgression()">
+                            <option value="C">C (Dó)</option>
+                            <option value="C#">C# / Db</option>
+                            <option value="D" selected>D (Ré)</option>
+                            <option value="D#">D# / Eb</option>
+                            <option value="E">E (Mi)</option>
+                            <option value="F">F (Fá)</option>
+                            <option value="F#">F# / Gb</option>
+                            <option value="G">G (Sol)</option>
+                            <option value="G#">G# / Ab</option>
+                            <option value="A">A (Lá)</option>
+                            <option value="A#">A# / Bb</option>
+                            <option value="B">B (Si)</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label>Sequência (Progressão)</label>
+                        <select id="prog-type" onchange="loadProgression()">
+                            <option value="worship-classic">Clássico (IV - I - V - vi)</option>
+                            <option value="chorus-epic">Refrão Épico (I - V - vi - IV)</option>
+                            <option value="turnaround">Ponte/Crescente (ii - IV - I - V)</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <button class="btn-primary" style="margin-bottom: 2px;" onclick="playFullProgression()">▶ Ouvir Sequência Completa</button>
+                    </div>
+                </div>
+
+                <h3 id="prog-title" style="margin-top: 20px; color: var(--text-main);">Selecione um acorde:</h3>
+                <!-- Container onde os botões dos acordes serão injetados via JS -->
+                <div class="chord-sequence" id="chord-blocks-container">
+                    <!-- Gerado dinamicamente -->
+                </div>
+
+                <div class="legend" style="border-top: 1px solid #334155; padding-top: 15px;">
+                    <div class="legend-item"><div class="dot-sample bg-scale"></div> Escala Maior (Global)</div>
+                    <div class="legend-item"><div class="dot-sample bg-root"></div> Tônica do Acorde</div>
+                    <div class="legend-item"><div class="dot-sample bg-third"></div> 3ª do Acorde</div>
+                    <div class="legend-item"><div class="dot-sample bg-fifth"></div> 5ª do Acorde</div>
+                </div>
+
+                <div class="fretboard-wrapper">
+                    <div class="fret-markers" id="prog-markers"></div>
+                    <div class="fretboard" id="prog-fretboard"></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Dica Prática de Improviso</h3>
+                <p>Note que à medida que você clica nos diferentes acordes, a escala de fundo (cinza) <strong>não muda</strong>. O que muda são as cores brilhantes (Vermelho, Verde, Roxo). O seu objetivo ao improvisar é navegar pela escala cinza, mas garantir que a nota final da sua frase "repousa" em uma das notas coloridas assim que o acorde mudar na música real.</p>
+            </div>
+        </section>
+
+        <!-- Créditos Adicionados -->
+        <footer>
+            App dedicado a Lucas A. S. - Desenvolvido pelo professor Glauber Santiago — DAC/UFSCar<br>
+            <a href="http://servidores.ufscar.br/glauber/" target="_blank">servidores.ufscar.br/glauber/</a> • 
+            <a href="https://sites.google.com/view/glauberia" target="_blank">sites.google.com/view/glauberia</a>
+        </footer>
+
+    </main>
+
+    <!-- MOTOR LÓGICO E DE ÁUDIO (JAVASCRIPT) -->
+    <script>
+        // --- 1. DADOS MUSICAIS CORE ---
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const tuningIndices = [4, 11, 7, 2, 9, 4]; // E4, B3, G3, D3, A2, E2
+        const tuningOctaves = [4, 3, 3, 3, 2, 2];
+        const numFrets = 15;
+
+        // Intervalos de Escalas (em meios-tons a partir da tônica)
+        const scaleIntervals = {
+            majorPenta: [0, 2, 4, 7, 9],
+            minorPenta: [0, 3, 5, 7, 10],
+            major: [0, 2, 4, 5, 7, 9, 11], // 1, 2, 3, 4, 5, 6, 7
+            minor: [0, 2, 3, 5, 7, 8, 10]
+        };
+
+        // Estrutura das Progressões baseado em numeração romana (Graus da Escala Maior)
+        // Graus Maior: I(Maj), ii(min), iii(min), IV(Maj), V(Maj), vi(min), vii(dim)
+        const chordDegrees = {
+            'I':  { scaleDegree: 0, type: 'major' }, // 0 meios tons da tônica
+            'ii': { scaleDegree: 2, type: 'minor' }, // +2 meios tons
+            'iii':{ scaleDegree: 4, type: 'minor' }, // +4 meios tons
+            'IV': { scaleDegree: 5, type: 'major' }, // +5 meios tons
+            'V':  { scaleDegree: 7, type: 'major' }, // +7 meios tons
+            'vi': { scaleDegree: 9, type: 'minor' }  // +9 meios tons
+        };
+
+        const progressionsData = {
+            'worship-classic': ['IV', 'I', 'V', 'vi'],
+            'chorus-epic': ['I', 'V', 'vi', 'IV'],
+            'turnaround': ['ii', 'IV', 'I', 'V']
+        };
+
+        // --- 2. SISTEMA DE ÁUDIO (Web Audio API) ---
+        let audioCtx;
+
+        function startApp() {
+            document.getElementById('audio-overlay').style.display = 'none';
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            // Iniciar renders
+            renderDictFretboard();
+            loadProgression();
+        }
+
+        function getFrequency(noteIndex, octave) {
+            const a4Index = 9; // 'A' in notes array
+            const a4Octave = 4;
+            const halfStepsFromA4 = (noteIndex - a4Index) + ((octave - a4Octave) * 12);
+            return 440 * Math.pow(2, halfStepsFromA4 / 12);
+        }
+
+        // Tocar nota individual da guitarra
+        function playPluck(frequency) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2500, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 1.5);
+
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.015);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+
+            osc.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 2.5);
+        }
+
+        // Tocar um acorde (simulando um Pad/Teclado)
+        function playChord(rootNoteIndex, chordType) {
+            if (!audioCtx) return;
+            
+            // Determinar notas do acorde (Tríade básica)
+            const thirdInterval = chordType === 'major' ? 4 : 3;
+            const fifthInterval = 7;
+            
+            // Frequências para Tônica, 3ª e 5ª (uma oitava abaixo para fazer base/pad)
+            const freqs = [
+                getFrequency(rootNoteIndex, 3), 
+                getFrequency((rootNoteIndex + thirdInterval) % 12, 3 + (rootNoteIndex + thirdInterval >= 12 ? 1 : 0)),
+                getFrequency((rootNoteIndex + fifthInterval) % 12, 3 + (rootNoteIndex + fifthInterval >= 12 ? 1 : 0))
+            ];
+
+            const chordDuration = 2.0;
+
+            freqs.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = i === 0 ? 'sine' : 'sawtooth'; // Root mais grave, resto mais rico
+                osc.frequency.value = freq;
+                
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                // Volume mais baixo para não ensurdecer
+                gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + chordDuration);
+
+                // Filtro lowpass para soar como um Pad de Igreja
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 800;
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + chordDuration);
+            });
+        }
+
+
+        // --- 3. MOTOR DE RENDERIZAÇÃO DO BRAÇO (FRETBOARD) ---
+        
+        /**
+         * Função central que desenha o braço da guitarra.
+         * Suporta mostrar apenas a escala (Modo Dicionário) 
+         * ou mostrar a escala global + highlight de Chord Tones (Modo Progressão)
+         */
+        function drawFretboard(containerId, markersId, globalRootIndex, globalScaleIntervals, activeChord = null, minFret = 0, maxFret = 15) {
+            const fretboard = document.getElementById(containerId);
+            const markers = document.getElementById(markersId);
+            fretboard.innerHTML = '';
+            markers.innerHTML = '';
+
+            // 1. Desenhar marcadores de casas
+            for (let i = 0; i <= numFrets; i++) {
+                const marker = document.createElement('div');
+                marker.className = 'fret-marker';
+                
+                // Ocultar casas fora da visualização (Shape mode)
+                if (i < minFret || i > maxFret) {
+                    marker.style.display = 'none';
+                } else {
+                    // Mostrar os números. Se for o modo "Shape", mostra de todas as casas para facilitar o estudo
+                    if (minFret > 0) {
+                        if (i !== 0) marker.innerText = i; 
+                    } else {
+                        if ([3, 5, 7, 9, 12, 15].includes(i)) marker.innerText = i;
+                    }
+                }
+                markers.appendChild(marker);
+            }
+
+            // 2. Lógica de Chord Tones (se aplicável)
+            let chordRootIndex = -1;
+            let chordNotesIndexes = []; // [Root, 3rd, 5th]
+
+            if (activeChord) {
+                chordRootIndex = activeChord.rootIndex;
+                const thirdInt = activeChord.type === 'major' ? 4 : 3;
+                chordNotesIndexes = [
+                    chordRootIndex,
+                    (chordRootIndex + thirdInt) % 12,
+                    (chordRootIndex + 7) % 12
+                ];
+            }
+
+            // 3. Desenhar Cordas e Casas
+            for (let s = 0; s < 6; s++) {
+                const stringDiv = document.createElement('div');
+                stringDiv.className = 'string';
+                
+                let currentNoteIndex = tuningIndices[s];
+                let currentOctave = tuningOctaves[s];
+
+                for (let f = 0; f <= numFrets; f++) {
+                    const fretDiv = document.createElement('div');
+                    fretDiv.className = 'fret';
+                    
+                    // Ocultar trastes fora da janela de visualização do shape
+                    if (f < minFret || f > maxFret) {
+                        fretDiv.style.display = 'none';
+                    }
+
+                    const noteName = notes[currentNoteIndex];
+                    const freq = getFrequency(currentNoteIndex, currentOctave);
+                    
+                    const dot = document.createElement('div');
+                    dot.className = 'note-dot';
+                    dot.innerText = noteName;
+
+                    // Lógica de coloração
+                    const intervalFromGlobalRoot = (currentNoteIndex - globalRootIndex + 12) % 12;
+                    const isInGlobalScale = globalScaleIntervals.includes(intervalFromGlobalRoot);
+
+                    if (activeChord) {
+                        // MODO PROGRESSÃO (Highlight Chord Tones)
+                        if (isInGlobalScale) {
+                            dot.classList.add('in-scale'); // Fundo cinza para a escala global
+                        }
+                        
+                        // Sobrepor com as cores do acorde ativo
+                        if (currentNoteIndex === chordNotesIndexes[0]) {
+                            dot.classList.remove('in-scale');
+                            dot.classList.add('chord-tone', 'root');
+                        } else if (currentNoteIndex === chordNotesIndexes[1]) {
+                            dot.classList.remove('in-scale');
+                            dot.classList.add('chord-tone', 'third');
+                        } else if (currentNoteIndex === chordNotesIndexes[2]) {
+                            dot.classList.remove('in-scale');
+                            dot.classList.add('chord-tone', 'fifth');
+                        }
+
+                    } else {
+                        // MODO DICIONÁRIO SIMPLES
+                        if (isInGlobalScale) {
+                            dot.classList.add('in-scale');
+                            // Destacar a tônica global
+                            if (intervalFromGlobalRoot === 0) {
+                                dot.classList.add('root');
+                                dot.classList.remove('in-scale');
+                            }
+                        }
+                    }
+
+                    // Interatividade
+                    fretDiv.onclick = () => {
+                        playPluck(freq);
+                        // Efeito visual de click
+                        const originalTransform = dot.style.transform;
+                        dot.style.transform = "scale(1.4)";
+                        dot.style.opacity = "1";
+                        setTimeout(() => {
+                            dot.style.transform = originalTransform;
+                            // Só remove opacidade forçada se não for um dot ativo
+                            if(!dot.classList.contains('root') && !dot.classList.contains('in-scale') && !dot.classList.contains('chord-tone')){
+                                dot.style.opacity = "";
+                            }
+                        }, 150);
+                    };
+
+                    fretDiv.appendChild(dot);
+                    stringDiv.appendChild(fretDiv);
+
+                    // Avançar
+                    currentNoteIndex++;
+                    if (currentNoteIndex >= 12) {
+                        currentNoteIndex = 0;
+                        currentOctave++;
+                    }
+                }
+                fretboard.appendChild(stringDiv);
+            }
+        }
+
+        // --- 4. CONTROLADORES DAS TELAS ---
+
+        // Navegação de Abas
+        function switchTab(tabId, btnElement) {
+            // Esconder todas
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            // Mostrar alvo
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+
+            // Atualizar UI dependendo da aba
+            if(tabId === 'screen-escalas') renderDictFretboard();
+            if(tabId === 'screen-progressoes') loadProgression();
+        }
+
+        // Estado do Dicionário (Ver shape local ou braço inteiro)
+        let isFullDictFretboard = false;
+        
+        function toggleDictView() {
+            isFullDictFretboard = !isFullDictFretboard;
+            const btn = document.getElementById('btn-toggle-fretboard');
+            btn.innerText = isFullDictFretboard ? "Mostrar Apenas Região (Shape)" : "Mostrar Braço Completo";
+            
+            if (isFullDictFretboard) {
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-primary');
+            } else {
+                btn.classList.add('btn-secondary');
+                btn.classList.remove('btn-primary');
+            }
+            renderDictFretboard();
+        }
+
+        // Renderizador da Tela 2 (Dicionário)
+        function renderDictFretboard() {
+            const key = document.getElementById('dict-key').value;
+            const scaleType = document.getElementById('dict-scale').value;
+            const rootIndex = notes.indexOf(key);
+            const intervals = scaleIntervals[scaleType];
+            
+            let minFret = 0;
+            let maxFret = numFrets;
+
+            if (!isFullDictFretboard) {
+                // Encontra a tônica na 6ª corda (E grave, índice 5 do tuningIndices)
+                let rootFretE = (rootIndex - tuningIndices[5] + 12) % 12;
+                
+                // Exibe uma "caixa" (shape) de 5 trastes ao redor da tônica
+                minFret = Math.max(0, rootFretE - 1);
+                maxFret = Math.min(numFrets, rootFretE + 4);
+                
+                // Ajuste para evitar shapes quebrados perto da casa 15
+                if (maxFret === numFrets) {
+                    minFret = Math.max(0, numFrets - 5);
+                }
+            }
+            
+            drawFretboard('dict-fretboard', 'dict-markers', rootIndex, intervals, null, minFret, maxFret);
+        }
+
+        // Renderizador da Tela 3 (Progressões)
+        let currentProgressionChords = []; // Guarda os dados dos acordes gerados
+
+        function loadProgression() {
+            const keyStr = document.getElementById('prog-key').value;
+            const progType = document.getElementById('prog-type').value;
+            const globalRootIndex = notes.indexOf(keyStr);
+            const numeralSequence = progressionsData[progType];
+            
+            const container = document.getElementById('chord-blocks-container');
+            container.innerHTML = '';
+            currentProgressionChords = [];
+
+            // Gerar blocos de acordes com base na escala maior
+            numeralSequence.forEach((numeral, index) => {
+                const degreeData = chordDegrees[numeral];
+                const chordRootIndex = (globalRootIndex + degreeData.scaleDegree) % 12;
+                let chordName = notes[chordRootIndex];
+                if (degreeData.type === 'minor') chordName += 'm';
+
+                // Guardar dados para uso posterior
+                const chordData = {
+                    numeral: numeral,
+                    name: chordName,
+                    rootIndex: chordRootIndex,
+                    type: degreeData.type,
+                    id: `chord-btn-${index}`
+                };
+                currentProgressionChords.push(chordData);
+
+                // Criar UI HTML
+                const btn = document.createElement('div');
+                btn.className = 'chord-block';
+                btn.id = chordData.id;
+                btn.innerHTML = `
+                    <div class="chord-numeral">Grau ${numeral}</div>
+                    <div class="chord-name">${chordName}</div>
+                `;
+                
+                // Evento ao clicar no acorde
+                btn.onclick = () => selectChord(chordData);
+                container.appendChild(btn);
+            });
+
+            // Selecionar o primeiro acorde por padrão
+            if(currentProgressionChords.length > 0) {
+                selectChord(currentProgressionChords[0]);
+            }
+        }
+
+        function selectChord(chordData) {
+            // Atualizar UI dos botões
+            document.querySelectorAll('.chord-block').forEach(b => b.classList.remove('active'));
+            document.getElementById(chordData.id).classList.add('active');
+
+            // Tocar Som
+            playChord(chordData.rootIndex, chordData.type);
+
+            // Atualizar Braço (passar a escala maior global e o acorde ativo para destacar)
+            const globalKeyStr = document.getElementById('prog-key').value;
+            const globalRootIndex = notes.indexOf(globalKeyStr);
+            const globalScaleIntervals = scaleIntervals['major']; // Progressões baseadas na escala Maior
+            
+            drawFretboard('prog-fretboard', 'prog-markers', globalRootIndex, globalScaleIntervals, chordData, 0, numFrets);
+        }
+
+        // Toca a sequência completa (automação)
+        function playFullProgression() {
+            if(currentProgressionChords.length === 0) return;
+            
+            let i = 0;
+            const tempoMs = 2000; // 2 segundos por acorde
+            
+            function nextChord() {
+                if (i < currentProgressionChords.length) {
+                    selectChord(currentProgressionChords[i]);
+                    i++;
+                    setTimeout(nextChord, tempoMs);
+                }
+            }
+            nextChord();
+        }
+
+    </script>
+</body>
+</html>
