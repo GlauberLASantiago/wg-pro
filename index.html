@@ -296,6 +296,9 @@
         .note-dot.root { background-color: var(--note-root); opacity: 1; transform: scale(1.15); z-index: 6;}
         .note-dot.third { background-color: var(--note-third); opacity: 1; transform: scale(1.1); }
         .note-dot.fifth { background-color: var(--note-fifth); opacity: 1; transform: scale(1.1); }
+        
+        /* Nova classe exclusiva para a fundamental do acorde verde na Tela 3 */
+        .note-dot.chord-root-green { background-color: var(--note-third); opacity: 1; transform: scale(1.15); z-index: 6; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
 
         /* Overlay Inicial */
         #audio-overlay {
@@ -518,7 +521,7 @@
         <!-- TELA 3 -->
         <section id="screen-progressoes" class="screen">
             <h1>Estudo de Progressões (Backing Tracks)</h1>
-            <p>Toque junto com os áudios gravados! O braço da guitarra irá sincronizar com a música e mostrar onde repousar as notas a cada 2 compassos.</p>
+            <p>Toque junto com os áudios gravados! O braço da guitarra irá sincronizar com a música e mostrar onde repousar a Fundamental do acorde dentro da Escala Pentatônica a cada 2 compassos.</p>
 
             <div class="card">
                 <div class="controls-group">
@@ -564,10 +567,8 @@
                 <div class="chord-sequence" id="chord-blocks-container"></div>
 
                 <div class="legend">
-                    <div class="legend-item"><div class="dot-sample bg-scale"></div> Escala Maior (Global)</div>
-                    <div class="legend-item"><div class="dot-sample bg-root"></div> Tônica do Acorde</div>
-                    <div class="legend-item"><div class="dot-sample bg-third"></div> 3ª do Acorde</div>
-                    <div class="legend-item"><div class="dot-sample bg-fifth"></div> 5ª do Acorde</div>
+                    <div class="legend-item"><div class="dot-sample bg-scale"></div> Escala Pentatônica Maior</div>
+                    <div class="legend-item"><div class="dot-sample" style="background-color: var(--note-third);"></div> Fundamental do Acorde</div>
                 </div>
 
                 <div class="fretboard-wrapper">
@@ -942,14 +943,9 @@
                 markers.appendChild(marker);
             }
 
-            let chordNotesIndexes = []; 
+            let chordRootIndex = -1;
             if (activeChord) {
-                const thirdInt = activeChord.type === 'major' ? 4 : 3;
-                chordNotesIndexes = [
-                    activeChord.rootIndex,
-                    (activeChord.rootIndex + thirdInt) % 12,
-                    (activeChord.rootIndex + 7) % 12
-                ];
+                chordRootIndex = activeChord.rootIndex;
             }
 
             for (let s = 0; s < 6; s++) {
@@ -976,16 +972,19 @@
                     const isInGlobalScale = globalScaleIntervals.includes(intervalFromGlobalRoot);
 
                     if (activeChord) {
-                        if (isInGlobalScale) dot.classList.add('in-scale');
+                        // Tela 3: Marca as notas da escala global com azul (in-scale)
+                        if (isInGlobalScale) {
+                            dot.classList.add('in-scale');
+                        }
                         
-                        if (currentNoteIndex === chordNotesIndexes[0]) {
-                            dot.classList.remove('in-scale'); dot.classList.add('chord-tone', 'root');
-                        } else if (currentNoteIndex === chordNotesIndexes[1]) {
-                            dot.classList.remove('in-scale'); dot.classList.add('chord-tone', 'third');
-                        } else if (currentNoteIndex === chordNotesIndexes[2]) {
-                            dot.classList.remove('in-scale'); dot.classList.add('chord-tone', 'fifth');
+                        // Sobrepõe apenas a fundamental do acorde com verde
+                        // Usamos chord-root-green que tem opacidade 1, destacando a nota mesmo que ela não seja da escala global
+                        if (currentNoteIndex === chordRootIndex) {
+                            dot.classList.remove('in-scale'); 
+                            dot.classList.add('chord-root-green');
                         }
                     } else {
+                        // Tela 2: Dicionário normal
                         if (isInGlobalScale) {
                             dot.classList.add('in-scale');
                             if (intervalFromGlobalRoot === 0) {
@@ -1000,7 +999,7 @@
                         dot.style.transform = "scale(1.4)"; dot.style.opacity = "1";
                         setTimeout(() => {
                             dot.style.transform = originalTransform;
-                            if(!dot.classList.contains('root') && !dot.classList.contains('in-scale') && !dot.classList.contains('chord-tone')) dot.style.opacity = "";
+                            if(!dot.classList.contains('root') && !dot.classList.contains('in-scale') && !dot.classList.contains('chord-tone') && !dot.classList.contains('chord-root-green')) dot.style.opacity = "";
                         }, 150);
                     };
 
@@ -1135,7 +1134,8 @@
             if (playSynth) playChordPad(chordData.rootIndex, chordData.type);
 
             const globalRootIndex = parseInt(document.getElementById('prog-key').value);
-            drawFretboard('prog-fretboard', 'prog-markers', globalRootIndex, scaleIntervals['major'], chordData, 0, numFrets);
+            // Aqui passamos a Pentatônica Maior em vez da Maior Diatônica
+            drawFretboard('prog-fretboard', 'prog-markers', globalRootIndex, scaleIntervals['majorPenta'], chordData, 0, numFrets);
         }
 
     </script>
