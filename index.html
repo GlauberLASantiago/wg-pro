@@ -567,7 +567,7 @@
                 <div class="chord-sequence" id="chord-blocks-container"></div>
 
                 <div class="legend">
-                    <div class="legend-item"><div class="dot-sample bg-scale"></div> Escala Pentatônica Maior</div>
+                    <div class="legend-item"><div class="dot-sample bg-scale"></div> Escala Pentatônica (Alvo)</div>
                     <div class="legend-item"><div class="dot-sample" style="background-color: var(--note-third);"></div> Fundamental do Acorde</div>
                 </div>
 
@@ -922,7 +922,7 @@
 
         // --- 3. MOTOR DE RENDERIZAÇÃO DO BRAÇO ---
         
-        function drawFretboard(containerId, markersId, globalRootIndex, globalScaleIntervals, activeChord = null, minFret = 0, maxFret = 15) {
+        function drawFretboard(containerId, markersId, scaleRootIndex, globalScaleIntervals, activeChord = null, minFret = 0, maxFret = 15) {
             const fretboard = document.getElementById(containerId);
             const markers = document.getElementById(markersId);
             fretboard.innerHTML = '';
@@ -948,6 +948,9 @@
                 chordRootIndex = activeChord.rootIndex;
             }
 
+            // O tom global é necessário apenas para decidir o nome da nota (enarmonia)
+            const globalRootIndex = parseInt(document.getElementById(activeChord ? 'prog-key' : 'dict-key').value);
+
             for (let s = 0; s < 6; s++) {
                 const stringDiv = document.createElement('div');
                 stringDiv.className = 'string';
@@ -968,26 +971,26 @@
                     // Renderiza o nome da nota baseada na enarmonia do tom atual (globalRootIndex)
                     dot.innerText = getNoteName(currentNoteIndex, globalRootIndex);
 
-                    const intervalFromGlobalRoot = (currentNoteIndex - globalRootIndex + 12) % 12;
-                    const isInGlobalScale = globalScaleIntervals.includes(intervalFromGlobalRoot);
+                    const intervalFromScaleRoot = (currentNoteIndex - scaleRootIndex + 12) % 12;
+                    const isInScale = globalScaleIntervals.includes(intervalFromScaleRoot);
 
                     if (activeChord) {
-                        // Tela 3: Marca as notas da escala global com azul (in-scale)
-                        if (isInGlobalScale) {
+                        // Tela 3: Marca as notas da escala pentatônica atual com azul (in-scale)
+                        if (isInScale) {
                             dot.classList.add('in-scale');
                         }
                         
                         // Sobrepõe apenas a fundamental do acorde com verde
-                        // Usamos chord-root-green que tem opacidade 1, destacando a nota mesmo que ela não seja da escala global
+                        // Usamos chord-root-green que tem opacidade 1, destacando a nota mesmo que ela não seja da escala exibida
                         if (currentNoteIndex === chordRootIndex) {
                             dot.classList.remove('in-scale'); 
                             dot.classList.add('chord-root-green');
                         }
                     } else {
                         // Tela 2: Dicionário normal
-                        if (isInGlobalScale) {
+                        if (isInScale) {
                             dot.classList.add('in-scale');
-                            if (intervalFromGlobalRoot === 0) {
+                            if (intervalFromScaleRoot === 0) {
                                 dot.classList.add('root'); dot.classList.remove('in-scale');
                             }
                         }
@@ -1134,8 +1137,18 @@
             if (playSynth) playChordPad(chordData.rootIndex, chordData.type);
 
             const globalRootIndex = parseInt(document.getElementById('prog-key').value);
-            // Aqui passamos a Pentatônica Maior em vez da Maior Diatônica
-            drawFretboard('prog-fretboard', 'prog-markers', globalRootIndex, scaleIntervals['majorPenta'], chordData, 0, numFrets);
+            
+            // Define a tônica da escala pentatônica com base no grau do acorde (Regra solicitada)
+            let pentaRootIndex = globalRootIndex; // Padrão: Pentatônica do I grau (para os acordes I e vi)
+            
+            if (chordData.numeral === 'IV' || chordData.numeral === 'ii') {
+                pentaRootIndex = (globalRootIndex + 5) % 12; // Pentatônica do IV grau (para acordes IV e ii)
+            } else if (chordData.numeral === 'V') {
+                pentaRootIndex = (globalRootIndex + 7) % 12; // Pentatônica do V grau (para o acorde V)
+            }
+
+            // Aqui passamos a tônica da Pentatônica Alvo relativa ao acorde em vez de apenas a global diatônica
+            drawFretboard('prog-fretboard', 'prog-markers', pentaRootIndex, scaleIntervals['majorPenta'], chordData, 0, numFrets);
         }
 
     </script>
