@@ -81,6 +81,17 @@
             font-weight: bold;
         }
 
+        .install-btn {
+            margin-top: auto;
+            color: #10b981;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+            display: none; /* Escondido por padrão, exibido via JS se PWA for suportado */
+        }
+        .install-btn:hover {
+            color: #34d399;
+        }
+
         /* --- Área de Conteúdo Principal --- */
         .main-content {
             flex: 1;
@@ -312,6 +323,9 @@
         <button class="nav-btn active" onclick="switchTab('screen-fundamentos', this)">1. Fundamentos & Timbre</button>
         <button class="nav-btn" onclick="switchTab('screen-escalas', this)">2. Dicionário de Escalas</button>
         <button class="nav-btn" onclick="switchTab('screen-progressoes', this)">3. Progressões & Acordes</button>
+        
+        <!-- Botão de Instalação PWA -->
+        <button id="btn-install" class="nav-btn install-btn" onclick="installPWA()">📲 Instalar App</button>
     </nav>
 
     <main class="main-content">
@@ -471,7 +485,74 @@
 
     </main>
 
-    <!-- JAVASCRIPT -->
+    <!-- INJEÇÃO DE PWA MANIFEST E SERVICE WORKER -->
+    <script>
+        // 1. Injetar Manifest PWA via Blob
+        const pwaManifest = {
+            "name": "Worship Guitar Pro",
+            "short_name": "WG Pro",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#0f172a",
+            "theme_color": "#fbbf24",
+            "icons": [{
+                "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎸%3C/text%3E%3C/svg%3E",
+                "sizes": "any",
+                "type": "image/svg+xml"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(pwaManifest)], {type: 'application/json'});
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = manifestUrl;
+        document.head.appendChild(manifestLink);
+
+        // 2. Injetar Service Worker Básico via Blob
+        const swCode = `
+            self.addEventListener('install', (e) => { self.skipWaiting(); });
+            self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
+            self.addEventListener('fetch', (e) => { /* Interceptação vazia exigida para PWA */ });
+        `;
+        const swBlob = new Blob([swCode], {type: 'text/javascript'});
+        const swUrl = URL.createObjectURL(swBlob);
+        
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register(swUrl).catch(err => console.log('SW falhou (Normal em ambiente local)', err));
+        }
+
+        // 3. Lógica do Botão de Instalação PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Previne o prompt padrão do chrome
+            e.preventDefault();
+            // Guarda o evento para ser disparado pelo botão
+            deferredPrompt = e;
+            // Mostra o botão na barra lateral
+            document.getElementById('btn-install').style.display = 'block';
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou a instalação do PWA');
+                        document.getElementById('btn-install').style.display = 'none';
+                    } else {
+                        console.log('Usuário recusou a instalação do PWA');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        window.addEventListener('appinstalled', (evt) => {
+            document.getElementById('btn-install').style.display = 'none';
+        });
+    </script>
+
+    <!-- JAVASCRIPT PRINCIPAL DA APLICAÇÃO -->
     <script>
         // --- 1. DADOS MUSICAIS ---
         const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
